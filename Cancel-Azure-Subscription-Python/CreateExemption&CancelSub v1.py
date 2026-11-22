@@ -11,22 +11,25 @@ from azure.identity import DefaultAzureCredential
 import requests
 from azure.cli.core import get_default_cli
 
-subscription_id = os.environ.get("AZURE_SUBSCRIPTION_ID")
-if not subscription_id:
-    raise SystemExit(
-        "AZURE_SUBSCRIPTION_ID is not set. Set the AZURE_SUBSCRIPTION_ID environment variable before running this script."
-    )
+def require_env(name):
+    value = os.environ.get(name)
+    if not value:
+        raise SystemExit(
+            f"{name} is not set. Set the {name} environment variable before running this script."
+        )
+    return value
 
-# Request for input, and user object has to be an 'id' not name
-user_object_id = input(
-    "What is the user object id you would like to grant owner rights? ")
+
+subscription_id = require_env("AZURE_SUBSCRIPTION_ID")
+user_object_id = require_env("AZURE_USER_OBJECT_ID")
+management_group_id = require_env("AZURE_MANAGEMENT_GROUP_ID")
 
 # Create policy exemption
 cli = get_default_cli()
 result = cli.invoke(
     ["policy", "exemption", "create", "--name", "Allow Owner for Azure Decom Test AZ CLI",
      "--display-name", "Allow Owner For Azure Decom Test AZ CLI",
-     "--policy-assignment", "/providers/Microsoft.Management/managementGroups/a4454629-85ac-4c26-b6be-438709073c2a/providers/Microsoft.Authorization/policyAssignments/c34560e1adab441d96fe8cf7",
+     "--policy-assignment", f"/providers/Microsoft.Management/managementGroups/{management_group_id}/providers/Microsoft.Authorization/policyAssignments/c34560e1adab441d96fe8cf7",
      "--exemption-category", "Waiver", "--scope", f"/subscriptions/{subscription_id}"]
 )
 print("\n")
