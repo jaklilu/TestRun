@@ -5,14 +5,19 @@
 
 import azure.mgmt.subscription
 import itertools
+import os
 import time
 from azure.identity import DefaultAzureCredential
 import requests
 from azure.cli.core import get_default_cli
 
+subscription_id = os.environ.get("AZURE_SUBSCRIPTION_ID")
+if not subscription_id:
+    raise SystemExit(
+        "AZURE_SUBSCRIPTION_ID is not set. Set the AZURE_SUBSCRIPTION_ID environment variable before running this script."
+    )
+
 # Request for input, and user object has to be an 'id' not name
-subscription_id = input(
-    "What is the subscription id you would like to cancel? ")
 user_object_id = input(
     "What is the user object id you would like to grant owner rights? ")
 
